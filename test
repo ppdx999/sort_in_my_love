@@ -1,0 +1,46 @@
+#!/bin/sh
+
+tmp=/tmp/$$
+
+on_exit() {
+    rm -f $tmp-*
+}
+
+trap "on_exit" EXIT
+
+on_process_msg() {
+    echo "now executing $file ..."
+}
+
+success_msg() {
+    echo "[OK] $file pass the test"
+}
+
+fail_msg() {
+    echo "[NG] $file"
+}
+
+exec_test() {
+    on_process_msg
+    cat test.data |
+        while read line; do
+            $cmd $file $line
+        done |
+        sed 's/^ *\| *$//' >$tmp-out
+
+    diff answer.data $tmp-out
+    if [ $? -eq 0 ]; then
+        success_msg
+    else
+        fail_msg
+        cat $tmp-out
+    fi
+}
+
+cmd="runghc"
+file="quick_sort.hs"
+exec_test
+
+cmd="ts-node"
+file="mergeSort.ts"
+exec_test

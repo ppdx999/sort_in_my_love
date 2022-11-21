@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# generate 100 test cases.
+#   - data lenght:1~6
+#   - min value:0
+#   - max value: 4
+gen_test_data() {
+    for nCases in $(seq 100); do
+        for i in $(seq $((($RANDOM % 6) + 1))); do
+            printf "%d " $(($RANDOM % 5))
+        done
+        printf "\n"
+    done
+}
+
+sort_test_data() {
+    while read line; do
+        xargs -n1 <<<$line | sort | xargs
+    done <$1
+}
+
+main() {
+    gen_test_data >test.data
+    sort_test_data test.data >answer.data
+}
+
+main
